@@ -50,7 +50,7 @@ EMNIST 是灰階 28x28，VGG16 要 32x32 的 RGB，稍後會在損失計算時�
 
 # 4. Encoder + Decoder 架構
 
-## 4.1 Encoder
+### 4.1 Encoder
 
 ```
 class Encoder(layers.Layer):
@@ -82,7 +82,7 @@ class Encoder(layers.Layer):
 flatten後再進入 Dense
 最後產生 z_mean 與 z_log_var，用來做 reparameterization trick 得到潛在向量 z
 
-# 4.2 Decoder
+### 4.2 Decoder
 
 ```
 class Decoder(layers.Layer):
