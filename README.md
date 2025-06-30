@@ -26,7 +26,7 @@ ds_train = ds_train.map(preprocess).batch(128).prefetch(tf.data.AUTOTUNE)
 ds_test  = ds_test.map(preprocess).batch(128).prefetch(tf.data.AUTOTUNE)
 ```
 
-將每個像素值正規化到 [0,1] 範圍。
+將每個像素值正規化到 [0,1] 範圍。  
 輸出的 label 被設成和 image 一樣（自編碼器目標是重建自己）。
 
 
