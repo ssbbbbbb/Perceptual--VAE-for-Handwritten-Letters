@@ -12,7 +12,7 @@
 )
 ```
 
-使用 tensorflow_datasets 下載 EMNIST 字母手寫圖像資料集，分為訓練集和測試集。
+使用 tensorflow_datasets 下載 EMNIST 字母手寫圖像資料集，分為訓練集和測試集。  
 
 
 # 2. 預處理: 正規化
@@ -27,7 +27,7 @@ ds_test  = ds_test.map(preprocess).batch(128).prefetch(tf.data.AUTOTUNE)
 ```
 
 將每個像素值正規化到 [0,1] 範圍。  
-輸出的 label 被設成和 image 一樣（自編碼器目標是重建自己）。
+輸出的 label 被設成和 image 一樣（自編碼器目標是重建自己）。  
 
 
 # 3. 感知模型（Perceptual Model）
@@ -43,9 +43,9 @@ perceptual_layer = tf.keras.Model(
 )
 ```
 
-這裡用 VGG16 的中層卷積特徵 (block3_conv3) 來當作感知損失的特徵空間。
-用預訓練的 VGG16，因此不會更新 VGG16 權重。
-EMNIST 是灰階 28x28，VGG16 要 32x32 的 RGB，稍後會在損失計算時轉換。
+這裡用 VGG16 的中層卷積特徵 (block3_conv3) 來當作感知損失的特徵空間。  
+用預訓練的 VGG16，因此不會更新 VGG16 權重。  
+EMNIST 是灰階 28x28，VGG16 要 32x32 的 RGB，稍後會在損失計算時轉換。  
 
 
 # 4. Encoder + Decoder 架構
@@ -78,8 +78,8 @@ class Encoder(layers.Layer):
         return z, z_mean, z_log_var, skips
 ```
 
-三層卷積，並將輸出一路存下來當作 skip-connection
-flatten後再進入 Dense
+三層卷積，並將輸出一路存下來當作 skip-connection  
+flatten後再進入 Dense  
 最後產生 z_mean 與 z_log_var，用來做 reparameterization trick 得到潛在向量 z
 
 ### 4.2 Decoder
@@ -110,11 +110,11 @@ class Decoder(layers.Layer):
         return self.out_conv(x)
 ```
 
-用全連接層還原成 feature map
-三次 Conv2DTranspose 上採樣（與 Encoder 鏈接 skip）
-用 Cropping 裁掉多餘 padding
-最後輸出單通道的圖像 (28x28x1)
-這設計像簡化版 U-Net
+用全連接層還原成 feature map  
+三次 Conv2DTranspose 上採樣（與 Encoder 鏈接 skip）  
+用 Cropping 裁掉多餘 padding  
+最後輸出單通道的圖像 (28x28x1)  
+這設計像簡化版 U-Net  
 
 
 # 5. β-VAE with Perceptual Loss
@@ -138,11 +138,11 @@ class VAE(Model):
         return loss, recon, kl, perc_loss
 ```
 
-重建損失（recon loss）：像素級 Binary Crossentropy。
-KL 損失：控制潛在空間的分布接近標準常態 N(0,1)，這是 VAE 的核心。
-感知損失（perceptual loss）：將真實和重建圖片都轉成 VGG16 特徵空間，比較他們的特徵差距。這讓重建圖像不只學到像素，更學到「感覺上」像不像。
-total loss = recon + β × KL + 感知損失加權 (β預設為500)
-透過 beta 控制 VAE 的解耦性、潛在空間規範強度。perc_weight 調節感知損失影響。
+重建損失（recon loss）：像素級 Binary Crossentropy。  
+KL 損失：控制潛在空間的分布接近標準常態 N(0,1)，這是 VAE 的核心。  
+感知損失（perceptual loss）：將真實和重建圖片都轉成 VGG16 特徵空間，比較他們的特徵差距。這讓重建圖像不只學到像素，更學到「感覺上」像不像。  
+total loss = recon + β × KL + 感知損失加權 (β預設為500)  
+透過 beta 控制 VAE 的解耦性、潛在空間規範強度。perc_weight 調節感知損失影響。  
 
 
 # 6. 訓練
@@ -154,6 +154,7 @@ vae.fit(
     validation_data=ds_test
 )
 ```
+  
 
 # 7. 畫 loss 曲線
 
@@ -176,10 +177,10 @@ plt.show()
 
 ![LOSS](loss.png)
 
-total：總損失（模型真正優化的目標）
-recon：重建誤差（像素層級，有助於圖像清晰度）
-kl：潛在空間的正則化（避免 z 的分布太亂）
-perc_loss：感知損失（讓重建圖「感覺」更像）
+total：總損失（模型真正優化的目標）  
+recon：重建誤差（像素層級，有助於圖像清晰度）  
+kl：潛在空間的正則化（避免 z 的分布太亂）  
+perc_loss：感知損失（讓重建圖「感覺」更像）  
 
 
 # 8. 可視化
@@ -199,4 +200,4 @@ for test_batch, _ in ds_test.take(1):
 
 ![test_image](test_image.png)
 
-顯示前10個測試集樣本的原圖（上排）與重建圖（下排），評估 VAE 表現。
+顯示前10個測試集樣本的原圖（上排）與重建圖（下排），評估 VAE 表現。  
