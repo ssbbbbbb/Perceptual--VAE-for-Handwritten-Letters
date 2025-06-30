@@ -13,6 +13,7 @@
 ```
 
 使用 tensorflow_datasets 下載 EMNIST 字母手寫圖像資料集，分為訓練集和測試集。  
+
   
 
 # 2. 預處理: 正規化
